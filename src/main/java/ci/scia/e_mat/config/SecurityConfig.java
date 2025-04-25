@@ -1,6 +1,5 @@
 package ci.scia.e_mat.config;
 
-import ci.scia.e_mat.utilisateur.UtilisateurService;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -10,22 +9,22 @@ import org.springframework.security.config.http.SessionCreationPolicy;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 @Configuration
 public class SecurityConfig {
 
-    private final UtilisateurService utilisateurService;
-
-    public SecurityConfig(UtilisateurService utilisateurService) {
-        this.utilisateurService = utilisateurService;
+    public SecurityConfig() {
+        // Suppression de la dépendance circulaire
     }
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http.csrf(csrf -> csrf.disable())
                 .authorizeHttpRequests(auth -> {
-                    auth.requestMatchers("/api/auth/**").permitAll();
-                    auth.anyRequest().authenticated();
+                    auth.requestMatchers("/api/**").permitAll(); // Autoriser les endpoints publics
+                   // auth.requestMatchers("/api/employes/**").authenticated(); // Autoriser uniquement les administrateurs
+                    //auth.anyRequest().authenticated(); // Authentification requise pour tout le reste
                 })
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS));
 

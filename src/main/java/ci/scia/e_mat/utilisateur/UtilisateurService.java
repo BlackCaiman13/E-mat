@@ -8,6 +8,7 @@ import org.springframework.data.domain.Sort;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -15,18 +16,29 @@ public class UtilisateurService implements UserDetailsService {
 
     private final UtilisateurRepository utilisateurRepository;
     private final RoleRepository roleRepository;
+    private final PasswordEncoder passwordEncoder;
 
     public UtilisateurService(final UtilisateurRepository utilisateurRepository,
-                              final RoleRepository roleRepository) {
+                              final RoleRepository roleRepository,
+                              final PasswordEncoder passwordEncoder) {
         this.utilisateurRepository = utilisateurRepository;
         this.roleRepository = roleRepository;
+        this.passwordEncoder = passwordEncoder;
     }
 
     // Méthode pour charger un utilisateur par son nom d'utilisateur
     @Override
     public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
-        return utilisateurRepository.findByNomUtilisateur(username)
+        Utilisateur utilisateur = utilisateurRepository.findByNomUtilisateur(username)
                 .orElseThrow(() -> new UsernameNotFoundException("Utilisateur non trouvé : " + username));
+
+        return new org.springframework.security.core.userdetails.User(
+                utilisateur.getNomUtilisateur(),
+                utilisateur.getMdp(),
+                utilisateur.getRoles().stream()
+                        .map(role -> new SimpleGrantedAuthority("ROLE_" + role.getNom()))
+                        .toList()
+        );
     }
 
     public List<UtilisateurDTO> findAll() {
@@ -45,6 +57,7 @@ public class UtilisateurService implements UserDetailsService {
     public Long create(final UtilisateurDTO utilisateurDTO) {
         final Utilisateur utilisateur = new Utilisateur();
         mapToEntity(utilisateurDTO, utilisateur);
+        utilisateur.setMdp(passwordEncoder.encode(utilisateur.getMdp())); // Encodage du mot de passe
         return utilisateurRepository.save(utilisateur).getId();
     }
 
@@ -52,6 +65,9 @@ public class UtilisateurService implements UserDetailsService {
         final Utilisateur utilisateur = utilisateurRepository.findById(id)
                 .orElseThrow(NotFoundException::new);
         mapToEntity(utilisateurDTO, utilisateur);
+        if (utilisateurDTO.getMdp() != null && !utilisateurDTO.getMdp().isEmpty()) {
+            utilisateur.setMdp(passwordEncoder.encode(utilisateurDTO.getMdp())); // Encodage du mot de passe
+        }
         utilisateurRepository.save(utilisateur);
     }
 
