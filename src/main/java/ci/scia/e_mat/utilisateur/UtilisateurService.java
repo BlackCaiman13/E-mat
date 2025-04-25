@@ -5,19 +5,28 @@ import ci.scia.e_mat.role.RoleRepository;
 import ci.scia.e_mat.util.NotFoundException;
 import java.util.List;
 import org.springframework.data.domain.Sort;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
-
 @Service
-public class UtilisateurService {
+public class UtilisateurService implements UserDetailsService {
 
     private final UtilisateurRepository utilisateurRepository;
     private final RoleRepository roleRepository;
 
     public UtilisateurService(final UtilisateurRepository utilisateurRepository,
-            final RoleRepository roleRepository) {
+                              final RoleRepository roleRepository) {
         this.utilisateurRepository = utilisateurRepository;
         this.roleRepository = roleRepository;
+    }
+
+    // Méthode pour charger un utilisateur par son nom d'utilisateur
+    @Override
+    public UserDetails loadUserByUsername(String username) throws UsernameNotFoundException {
+        return utilisateurRepository.findByNomUtilisateur(username)
+                .orElseThrow(() -> new UsernameNotFoundException("Utilisateur non trouvé : " + username));
     }
 
     public List<UtilisateurDTO> findAll() {
@@ -51,7 +60,7 @@ public class UtilisateurService {
     }
 
     private UtilisateurDTO mapToDTO(final Utilisateur utilisateur,
-            final UtilisateurDTO utilisateurDTO) {
+                                    final UtilisateurDTO utilisateurDTO) {
         utilisateurDTO.setId(utilisateur.getId());
         utilisateurDTO.setNomUtilisateur(utilisateur.getNomUtilisateur());
         utilisateurDTO.setMdp(utilisateur.getMdp());
@@ -60,7 +69,7 @@ public class UtilisateurService {
     }
 
     private Utilisateur mapToEntity(final UtilisateurDTO utilisateurDTO,
-            final Utilisateur utilisateur) {
+                                    final Utilisateur utilisateur) {
         utilisateur.setNomUtilisateur(utilisateurDTO.getNomUtilisateur());
         utilisateur.setMdp(utilisateurDTO.getMdp());
         final Role role = utilisateurDTO.getRole() == null ? null : roleRepository.findById(utilisateurDTO.getRole())
@@ -68,5 +77,4 @@ public class UtilisateurService {
         utilisateur.setRole(role);
         return utilisateur;
     }
-
 }

@@ -13,19 +13,22 @@ import jakarta.persistence.ManyToOne;
 import jakarta.persistence.SequenceGenerator;
 import jakarta.persistence.Table;
 import java.time.OffsetDateTime;
+import java.util.Collection;
+import java.util.Collections;
 import lombok.Getter;
 import lombok.Setter;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedDate;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
-
+import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.core.userdetails.UserDetails;
 
 @Entity
 @Table(name = "Utilisateurs")
 @EntityListeners(AuditingEntityListener.class)
 @Getter
 @Setter
-public class Utilisateur {
+public class Utilisateur implements UserDetails {
 
     @Id
     @Column(nullable = false, updatable = false)
@@ -58,5 +61,40 @@ public class Utilisateur {
     @LastModifiedDate
     @Column(nullable = false)
     private OffsetDateTime lastUpdated;
+
+        @Override
+    public Collection<? extends GrantedAuthority> getAuthorities() {
+        return Collections.singleton(role); // Retourne le rôle comme autorité
+    }
+
+    @Override
+    public String getPassword() {
+        return mdp; // Retourne le mot de passe
+    }
+
+    @Override
+    public String getUsername() {
+        return nomUtilisateur; // Retourne le nom d'utilisateur
+    }
+
+    @Override
+    public boolean isAccountNonExpired() {
+        return true; // Compte non expiré
+    }
+
+    @Override
+    public boolean isAccountNonLocked() {
+        return true; // Compte non verrouillé
+    }
+
+    @Override
+    public boolean isCredentialsNonExpired() {
+        return true; // Identifiants non expirés
+    }
+
+    @Override
+    public boolean isEnabled() {
+        return true; // Compte activé
+    }
 
 }
