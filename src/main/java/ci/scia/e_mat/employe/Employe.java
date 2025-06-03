@@ -10,9 +10,8 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
-import jakarta.persistence.JoinTable;
-import jakarta.persistence.ManyToMany;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.SequenceGenerator;
 import jakarta.persistence.Table;
 import java.time.OffsetDateTime;
@@ -55,12 +54,7 @@ public class Employe {
     @JoinColumn(name = "etat_id")
     private Etat etat;
 
-    @ManyToMany
-    @JoinTable(
-            name = "Affectations",
-            joinColumns = @JoinColumn(name = "employeId"),
-            inverseJoinColumns = @JoinColumn(name = "materielId")
-    )
+    @OneToMany(mappedBy = "employes")
     private Set<Materiel> materiels;
 
     @CreatedDate

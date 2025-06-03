@@ -2,8 +2,6 @@ package ci.scia.e_mat.fournisseur;
 
 import ci.scia.e_mat.etat.Etat;
 import ci.scia.e_mat.etat.EtatRepository;
-import ci.scia.e_mat.livraison.Livraison;
-import ci.scia.e_mat.livraison.LivraisonRepository;
 import ci.scia.e_mat.materiel.Materiel;
 import ci.scia.e_mat.materiel.MaterielRepository;
 import ci.scia.e_mat.util.NotFoundException;
@@ -19,15 +17,12 @@ public class FournisseurService {
     private final FournisseurRepository fournisseurRepository;
     private final EtatRepository etatRepository;
     private final MaterielRepository materielRepository;
-    private final LivraisonRepository livraisonRepository;
 
     public FournisseurService(final FournisseurRepository fournisseurRepository,
-            final EtatRepository etatRepository, final MaterielRepository materielRepository,
-            final LivraisonRepository livraisonRepository) {
+            final EtatRepository etatRepository, final MaterielRepository materielRepository) {
         this.fournisseurRepository = fournisseurRepository;
         this.etatRepository = etatRepository;
         this.materielRepository = materielRepository;
-        this.livraisonRepository = livraisonRepository;
     }
 
     public List<FournisseurDTO> findAll() {
@@ -87,12 +82,6 @@ public class FournisseurService {
         if (fournisseurMateriel != null) {
             referencedWarning.setKey("fournisseur.materiel.fournisseur.referenced");
             referencedWarning.addParam(fournisseurMateriel.getId());
-            return referencedWarning;
-        }
-        final Livraison fournisseurLivraison = livraisonRepository.findFirstByFournisseur(fournisseur);
-        if (fournisseurLivraison != null) {
-            referencedWarning.setKey("fournisseur.livraison.fournisseur.referenced");
-            referencedWarning.addParam(fournisseurLivraison.getId());
             return referencedWarning;
         }
         return null;

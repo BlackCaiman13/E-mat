@@ -1,4 +1,4 @@
-package ci.scia.e_mat.employe;
+package ci.scia.e_mat.status;
 
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
@@ -8,18 +8,13 @@ import lombok.Setter;
 
 @Getter
 @Setter
-public class EmployeDTO {
+public class StatusDTO {
 
     private Long id;
 
     @NotNull
     @Size(max = 255)
-    private String nomEmploye;
-
-    @NotNull
-    @Size(max = 255)
-    private String prenomEmploye;
-
-    private Long etat;
+    @StatusLibelleStatusUnique
+    private String libelleStatus;
 
 }

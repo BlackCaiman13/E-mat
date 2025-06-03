@@ -1,7 +1,6 @@
 package ci.scia.e_mat.fournisseur;
 
 import ci.scia.e_mat.etat.Etat;
-import ci.scia.e_mat.livraison.Livraison;
 import ci.scia.e_mat.materiel.Materiel;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -57,9 +56,6 @@ public class Fournisseur {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "etat_id")
     private Etat etat;
-
-    @OneToMany(mappedBy = "fournisseur")
-    private Set<Livraison> livraisons;
 
     @CreatedDate
     @Column(nullable = false, updatable = false)

@@ -1,4 +1,4 @@
-package ci.scia.e_mat.livraison;
+package ci.scia.e_mat.status;
 
 import java.util.List;
 
@@ -21,49 +21,47 @@ import jakarta.validation.Valid;
 
 
 @RestController
-@RequestMapping(value = "/api/livraisons", produces = MediaType.APPLICATION_JSON_VALUE)
-//@PreAuthorize("hasAnyRole('admin')")
-public class LivraisonResource {
+@RequestMapping(value = "/api/statuses", produces = MediaType.APPLICATION_JSON_VALUE)
+public class StatusResource {
 
-    private final LivraisonService livraisonService;
+    private final StatusService statusService;
 
-    public LivraisonResource(final LivraisonService livraisonService) {
-        this.livraisonService = livraisonService;
+    public StatusResource(final StatusService statusService) {
+        this.statusService = statusService;
     }
 
     @GetMapping
-    public ResponseEntity<List<LivraisonDTO>> getAllLivraisons() {
-        return ResponseEntity.ok(livraisonService.findAll());
+    public ResponseEntity<List<StatusDTO>> getAllStatuses() {
+        return ResponseEntity.ok(statusService.findAll());
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<LivraisonDTO> getLivraison(@PathVariable(name = "id") final Long id) {
-        return ResponseEntity.ok(livraisonService.get(id));
+    public ResponseEntity<StatusDTO> getStatus(@PathVariable(name = "id") final Long id) {
+        return ResponseEntity.ok(statusService.get(id));
     }
 
     @PostMapping
     @ApiResponse(responseCode = "201")
-    public ResponseEntity<Long> createLivraison(
-            @RequestBody @Valid final LivraisonDTO livraisonDTO) {
-        final Long createdId = livraisonService.create(livraisonDTO);
+    public ResponseEntity<Long> createStatus(@RequestBody @Valid final StatusDTO statusDTO) {
+        final Long createdId = statusService.create(statusDTO);
         return new ResponseEntity<>(createdId, HttpStatus.CREATED);
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Long> updateLivraison(@PathVariable(name = "id") final Long id,
-            @RequestBody @Valid final LivraisonDTO livraisonDTO) {
-        livraisonService.update(id, livraisonDTO);
+    public ResponseEntity<Long> updateStatus(@PathVariable(name = "id") final Long id,
+            @RequestBody @Valid final StatusDTO statusDTO) {
+        statusService.update(id, statusDTO);
         return ResponseEntity.ok(id);
     }
 
     @DeleteMapping("/{id}")
     @ApiResponse(responseCode = "204")
-    public ResponseEntity<Void> deleteLivraison(@PathVariable(name = "id") final Long id) {
-        final ReferencedWarning referencedWarning = livraisonService.getReferencedWarning(id);
+    public ResponseEntity<Void> deleteStatus(@PathVariable(name = "id") final Long id) {
+        final ReferencedWarning referencedWarning = statusService.getReferencedWarning(id);
         if (referencedWarning != null) {
             throw new ReferencedException(referencedWarning);
         }
-        livraisonService.delete(id);
+        statusService.delete(id);
         return ResponseEntity.noContent().build();
     }
 

@@ -1,28 +1,25 @@
 package ci.scia.e_mat.livraison;
 
-import ci.scia.e_mat.fournisseur.Fournisseur;
+import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
+import java.util.Set;
+
+import org.springframework.data.annotation.CreatedDate;
+import org.springframework.data.annotation.LastModifiedDate;
+import org.springframework.data.jpa.domain.support.AuditingEntityListener;
+
 import ci.scia.e_mat.materiel.Materiel;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EntityListeners;
-import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.JoinTable;
-import jakarta.persistence.ManyToMany;
-import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.SequenceGenerator;
 import jakarta.persistence.Table;
-import java.time.LocalTime;
-import java.time.OffsetDateTime;
-import java.util.Set;
 import lombok.Getter;
 import lombok.Setter;
-import org.springframework.data.annotation.CreatedDate;
-import org.springframework.data.annotation.LastModifiedDate;
-import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
 
 @Entity
@@ -47,18 +44,9 @@ public class Livraison {
     private Long id;
 
     @Column
-    private LocalTime date;
+    private LocalDateTime date;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "fournisseur_id")
-    private Fournisseur fournisseur;
-
-    @ManyToMany
-    @JoinTable(
-            name = "LivraisonMateriels",
-            joinColumns = @JoinColumn(name = "livraisonId"),
-            inverseJoinColumns = @JoinColumn(name = "materielId")
-    )
+    @OneToMany(mappedBy = "livraisons")
     private Set<Materiel> materiels;
 
     @CreatedDate

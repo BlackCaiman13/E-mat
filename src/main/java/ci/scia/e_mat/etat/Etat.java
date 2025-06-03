@@ -1,6 +1,5 @@
 package ci.scia.e_mat.etat;
 
-import ci.scia.e_mat.constructeur.Constructeur;
 import ci.scia.e_mat.employe.Employe;
 import ci.scia.e_mat.fournisseur.Fournisseur;
 import jakarta.persistence.Column;
@@ -47,9 +46,6 @@ public class Etat {
 
     @OneToMany(mappedBy = "etat")
     private Set<Employe> employes;
-
-    @OneToMany(mappedBy = "etat")
-    private Set<Constructeur> constructeurs;
 
     @OneToMany(mappedBy = "etat")
     private Set<Fournisseur> fournisseurs;

@@ -5,15 +5,13 @@ import ci.scia.e_mat.etat.EtatRepository;
 import ci.scia.e_mat.materiel.Materiel;
 import ci.scia.e_mat.materiel.MaterielRepository;
 import ci.scia.e_mat.util.NotFoundException;
-import jakarta.transaction.Transactional;
-import java.util.HashSet;
+import ci.scia.e_mat.util.ReferencedWarning;
 import java.util.List;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 
 @Service
-@Transactional
 public class EmployeService {
 
     private final EmployeRepository employeRepository;
@@ -62,9 +60,6 @@ public class EmployeService {
         employeDTO.setNomEmploye(employe.getNomEmploye());
         employeDTO.setPrenomEmploye(employe.getPrenomEmploye());
         employeDTO.setEtat(employe.getEtat() == null ? null : employe.getEtat().getId());
-        employeDTO.setMateriels(employe.getMateriels().stream()
-                .map(materiel -> materiel.getId())
-                .toList());
         return employeDTO;
     }
 
@@ -74,13 +69,20 @@ public class EmployeService {
         final Etat etat = employeDTO.getEtat() == null ? null : etatRepository.findById(employeDTO.getEtat())
                 .orElseThrow(() -> new NotFoundException("etat not found"));
         employe.setEtat(etat);
-        final List<Materiel> materiels = materielRepository.findAllById(
-                employeDTO.getMateriels() == null ? List.of() : employeDTO.getMateriels());
-        if (materiels.size() != (employeDTO.getMateriels() == null ? 0 : employeDTO.getMateriels().size())) {
-            throw new NotFoundException("one of materiels not found");
-        }
-        employe.setMateriels(new HashSet<>(materiels));
         return employe;
+    }
+
+    public ReferencedWarning getReferencedWarning(final Long id) {
+        final ReferencedWarning referencedWarning = new ReferencedWarning();
+        final Employe employe = employeRepository.findById(id)
+                .orElseThrow(NotFoundException::new);
+        final Materiel employesMateriel = materielRepository.findFirstByEmployes(employe);
+        if (employesMateriel != null) {
+            referencedWarning.setKey("employe.materiel.employes.referenced");
+            referencedWarning.addParam(employesMateriel.getId());
+            return referencedWarning;
+        }
+        return null;
     }
 
 }

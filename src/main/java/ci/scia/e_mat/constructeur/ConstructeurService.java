@@ -1,7 +1,5 @@
 package ci.scia.e_mat.constructeur;
 
-import ci.scia.e_mat.etat.Etat;
-import ci.scia.e_mat.etat.EtatRepository;
 import ci.scia.e_mat.materiel.Materiel;
 import ci.scia.e_mat.materiel.MaterielRepository;
 import ci.scia.e_mat.util.NotFoundException;
@@ -15,13 +13,11 @@ import org.springframework.stereotype.Service;
 public class ConstructeurService {
 
     private final ConstructeurRepository constructeurRepository;
-    private final EtatRepository etatRepository;
     private final MaterielRepository materielRepository;
 
     public ConstructeurService(final ConstructeurRepository constructeurRepository,
-            final EtatRepository etatRepository, final MaterielRepository materielRepository) {
+            final MaterielRepository materielRepository) {
         this.constructeurRepository = constructeurRepository;
-        this.etatRepository = etatRepository;
         this.materielRepository = materielRepository;
     }
 
@@ -60,7 +56,6 @@ public class ConstructeurService {
         constructeurDTO.setId(constructeur.getId());
         constructeurDTO.setNomConstructeur(constructeur.getNomConstructeur());
         constructeurDTO.setCodeConstructeur(constructeur.getCodeConstructeur());
-        constructeurDTO.setEtat(constructeur.getEtat() == null ? null : constructeur.getEtat().getId());
         return constructeurDTO;
     }
 
@@ -68,9 +63,6 @@ public class ConstructeurService {
             final Constructeur constructeur) {
         constructeur.setNomConstructeur(constructeurDTO.getNomConstructeur());
         constructeur.setCodeConstructeur(constructeurDTO.getCodeConstructeur());
-        final Etat etat = constructeurDTO.getEtat() == null ? null : etatRepository.findById(constructeurDTO.getEtat())
-                .orElseThrow(() -> new NotFoundException("etat not found"));
-        constructeur.setEtat(etat);
         return constructeur;
     }
 

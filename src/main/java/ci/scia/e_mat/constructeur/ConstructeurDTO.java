@@ -20,6 +20,4 @@ public class ConstructeurDTO {
     @Size(max = 50)
     private String codeConstructeur;
 
-    private Long etat;
-
 }

@@ -28,4 +28,8 @@ public class MaterielDTO {
 
     private Long status;
 
+    private Long employe;
+
+    private Long livraison;
+
 }

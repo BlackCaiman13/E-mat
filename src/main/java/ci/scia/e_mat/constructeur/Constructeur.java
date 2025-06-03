@@ -1,16 +1,12 @@
 package ci.scia.e_mat.constructeur;
 
-import ci.scia.e_mat.etat.Etat;
 import ci.scia.e_mat.materiel.Materiel;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EntityListeners;
-import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.SequenceGenerator;
 import jakarta.persistence.Table;
@@ -52,10 +48,6 @@ public class Constructeur {
 
     @OneToMany(mappedBy = "constructeur")
     private Set<Materiel> materiels;
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "etat_id")
-    private Etat etat;
 
     @CreatedDate
     @Column(nullable = false, updatable = false)

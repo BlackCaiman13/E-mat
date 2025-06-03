@@ -2,23 +2,26 @@ package ci.scia.e_mat.materiel;
 
 import ci.scia.e_mat.constructeur.Constructeur;
 import ci.scia.e_mat.constructeur.ConstructeurRepository;
+import ci.scia.e_mat.employe.Employe;
 import ci.scia.e_mat.employe.EmployeRepository;
 import ci.scia.e_mat.fournisseur.Fournisseur;
 import ci.scia.e_mat.fournisseur.FournisseurRepository;
+import ci.scia.e_mat.livraison.Livraison;
 import ci.scia.e_mat.livraison.LivraisonRepository;
 import ci.scia.e_mat.status.Status;
 import ci.scia.e_mat.status.StatusRepository;
 import ci.scia.e_mat.type.Type;
 import ci.scia.e_mat.type.TypeRepository;
 import ci.scia.e_mat.util.NotFoundException;
-import jakarta.transaction.Transactional;
 import java.util.List;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 
 @Service
-@Transactional
 public class MaterielService {
 
     private final MaterielRepository materielRepository;
@@ -28,6 +31,8 @@ public class MaterielService {
     private final StatusRepository statusRepository;
     private final EmployeRepository employeRepository;
     private final LivraisonRepository livraisonRepository;
+    private static final Logger log = LoggerFactory.getLogger(MaterielService.class);
+
 
     public MaterielService(final MaterielRepository materielRepository,
             final ConstructeurRepository constructeurRepository,
@@ -70,14 +75,7 @@ public class MaterielService {
     }
 
     public void delete(final Long id) {
-        final Materiel materiel = materielRepository.findById(id)
-                .orElseThrow(NotFoundException::new);
-        // remove many-to-many relations at owning side
-        employeRepository.findAllByMateriels(materiel)
-                .forEach(employe -> employe.getMateriels().remove(materiel));
-        livraisonRepository.findAllByMateriels(materiel)
-                .forEach(livraison -> livraison.getMateriels().remove(materiel));
-        materielRepository.delete(materiel);
+        materielRepository.deleteById(id);
     }
 
     private MaterielDTO mapToDTO(final Materiel materiel, final MaterielDTO materielDTO) {
@@ -88,6 +86,8 @@ public class MaterielService {
         materielDTO.setFournisseur(materiel.getFournisseur() == null ? null : materiel.getFournisseur().getId());
         materielDTO.setType(materiel.getType() == null ? null : materiel.getType().getId());
         materielDTO.setStatus(materiel.getStatus() == null ? null : materiel.getStatus().getId());
+        materielDTO.setEmploye(materiel.getEmployes() == null ? null : materiel.getEmployes().getId());
+        materielDTO.setLivraison(materiel.getLivraisons() == null ? null : materiel.getLivraisons().getId());
         return materielDTO;
     }
 
@@ -106,7 +106,65 @@ public class MaterielService {
         final Status status = materielDTO.getStatus() == null ? null : statusRepository.findById(materielDTO.getStatus())
                 .orElseThrow(() -> new NotFoundException("status not found"));
         materiel.setStatus(status);
+        final Employe employe = materielDTO.getEmploye() == null ? null : employeRepository.findById(materielDTO.getEmploye())
+                .orElseThrow(() -> new NotFoundException("employe not found"));
+        materiel.setEmployes(employe);
+        final Livraison livraison = materielDTO.getLivraison() == null ? null : livraisonRepository.findById(materielDTO.getLivraison())
+                .orElseThrow(() -> new NotFoundException("livraison not found"));
+        materiel.setLivraisons(livraison);
         return materiel;
+    }
+
+    @Transactional
+    public void attribuerMateriel(final Long materielId, final Long employeId) {
+        final Materiel materiel = materielRepository.findById(materielId)
+                .orElseThrow(() -> new NotFoundException("Matériel non trouvé"));
+
+        if (materiel.getStatus() == null || !materiel.getStatus().getLibelleStatus().equals("Neuf")) {
+        log.info(materiel.getModel());
+        log.info(materiel.getStatus().getLibelleStatus());
+        throw new IllegalStateException("Seuls les matériels neufs peuvent être attribués");
+    }
+
+        final Employe employe = employeRepository.findById(employeId)
+                .orElseThrow(() -> new NotFoundException("Employé non trouvé"));
+
+        materiel.setEmployes(employe);
+        Status status = statusRepository.findByLibelleStatusIgnoreCase("Usagé")
+                .orElseThrow(() -> new NotFoundException("Statut 'Attribué' non trouvé"));
+        materiel.setStatus(status);
+        materielRepository.save(materiel);
+    }
+
+    public void revoquerAttribution(final Long materielId) {
+        final Materiel materiel = materielRepository.findById(materielId)
+                .orElseThrow(() -> new NotFoundException("Matériel non trouvé"));
+
+        if (materiel.getEmployes() == null) {
+            throw new IllegalStateException("Ce matériel n'est pas attribué");
+        }
+
+        materiel.setEmployes(null);
+        Status status = statusRepository.findByLibelleStatusIgnoreCase("Neuf")
+                .orElseThrow(() -> new NotFoundException("Statut 'Attribué' non trouvé"));
+        materiel.setStatus(status);
+        materielRepository.save(materiel);
+    }
+
+    public void changerEtat(final Long materielId, final Long statusId) {
+        final Materiel materiel = materielRepository.findById(materielId)
+                .orElseThrow(() -> new NotFoundException("Matériel non trouvé"));
+
+        final Status newStatus = statusRepository.findById(statusId)
+                .orElseThrow(() -> new NotFoundException("Status non trouvé"));
+
+        // Si le nouveau statut est "en panne", on révoque l'attribution
+        if (newStatus.getLibelleStatus().equals("en panne") && materiel.getEmployes() != null) {
+            materiel.setEmployes(null);
+        }
+
+        materiel.setStatus(newStatus);
+        materielRepository.save(materiel);
     }
 
 }

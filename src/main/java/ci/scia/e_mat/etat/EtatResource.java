@@ -1,4 +1,4 @@
-package ci.scia.e_mat.employe;
+package ci.scia.e_mat.etat;
 
 import ci.scia.e_mat.util.ReferencedException;
 import ci.scia.e_mat.util.ReferencedWarning;
@@ -19,47 +19,47 @@ import org.springframework.web.bind.annotation.RestController;
 
 
 @RestController
-@RequestMapping(value = "/api/employes", produces = MediaType.APPLICATION_JSON_VALUE)
-public class EmployeResource {
+@RequestMapping(value = "/api/etats", produces = MediaType.APPLICATION_JSON_VALUE)
+public class EtatResource {
 
-    private final EmployeService employeService;
+    private final EtatService etatService;
 
-    public EmployeResource(final EmployeService employeService) {
-        this.employeService = employeService;
+    public EtatResource(final EtatService etatService) {
+        this.etatService = etatService;
     }
 
     @GetMapping
-    public ResponseEntity<List<EmployeDTO>> getAllEmployes() {
-        return ResponseEntity.ok(employeService.findAll());
+    public ResponseEntity<List<EtatDTO>> getAllEtats() {
+        return ResponseEntity.ok(etatService.findAll());
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<EmployeDTO> getEmploye(@PathVariable(name = "id") final Long id) {
-        return ResponseEntity.ok(employeService.get(id));
+    public ResponseEntity<EtatDTO> getEtat(@PathVariable(name = "id") final Long id) {
+        return ResponseEntity.ok(etatService.get(id));
     }
 
     @PostMapping
     @ApiResponse(responseCode = "201")
-    public ResponseEntity<Long> createEmploye(@RequestBody @Valid final EmployeDTO employeDTO) {
-        final Long createdId = employeService.create(employeDTO);
+    public ResponseEntity<Long> createEtat(@RequestBody @Valid final EtatDTO etatDTO) {
+        final Long createdId = etatService.create(etatDTO);
         return new ResponseEntity<>(createdId, HttpStatus.CREATED);
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Long> updateEmploye(@PathVariable(name = "id") final Long id,
-            @RequestBody @Valid final EmployeDTO employeDTO) {
-        employeService.update(id, employeDTO);
+    public ResponseEntity<Long> updateEtat(@PathVariable(name = "id") final Long id,
+            @RequestBody @Valid final EtatDTO etatDTO) {
+        etatService.update(id, etatDTO);
         return ResponseEntity.ok(id);
     }
 
     @DeleteMapping("/{id}")
     @ApiResponse(responseCode = "204")
-    public ResponseEntity<Void> deleteEmploye(@PathVariable(name = "id") final Long id) {
-        final ReferencedWarning referencedWarning = employeService.getReferencedWarning(id);
+    public ResponseEntity<Void> deleteEtat(@PathVariable(name = "id") final Long id) {
+        final ReferencedWarning referencedWarning = etatService.getReferencedWarning(id);
         if (referencedWarning != null) {
             throw new ReferencedException(referencedWarning);
         }
-        employeService.delete(id);
+        etatService.delete(id);
         return ResponseEntity.noContent().build();
     }
 
