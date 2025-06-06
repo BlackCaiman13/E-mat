@@ -64,6 +64,9 @@ public class MaterielService {
     public Long create(final MaterielDTO materielDTO) {
         final Materiel materiel = new Materiel();
         mapToEntity(materielDTO, materiel);
+        materiel.setStatus(statusRepository.findByLibelleStatusIgnoreCase("Neuf")
+                .orElseThrow(() -> new NotFoundException("Status 'Neuf' not found")));
+        materiel.setEmployes(null); // Initialement, le matériel n'est pas attribué
         return materielRepository.save(materiel).getId();
     }
 

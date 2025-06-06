@@ -5,6 +5,7 @@ import java.util.List;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -30,16 +31,20 @@ public class StatusResource {
         this.statusService = statusService;
     }
 
+
+    @PreAuthorize("hasRole('admin') or hasRole('exploitant') or hasRole('directeur')")
     @GetMapping
     public ResponseEntity<List<StatusDTO>> getAllStatuses() {
         return ResponseEntity.ok(statusService.findAll());
     }
 
+    @PreAuthorize("hasRole('admin') or hasRole('exploitant') or hasRole('directeur')")
     @GetMapping("/{id}")
     public ResponseEntity<StatusDTO> getStatus(@PathVariable(name = "id") final Long id) {
         return ResponseEntity.ok(statusService.get(id));
     }
 
+    @PreAuthorize("hasRole('admin')")
     @PostMapping
     @ApiResponse(responseCode = "201")
     public ResponseEntity<Long> createStatus(@RequestBody @Valid final StatusDTO statusDTO) {
@@ -47,6 +52,7 @@ public class StatusResource {
         return new ResponseEntity<>(createdId, HttpStatus.CREATED);
     }
 
+    @PreAuthorize("hasRole('admin')")
     @PutMapping("/{id}")
     public ResponseEntity<Long> updateStatus(@PathVariable(name = "id") final Long id,
             @RequestBody @Valid final StatusDTO statusDTO) {
@@ -54,6 +60,7 @@ public class StatusResource {
         return ResponseEntity.ok(id);
     }
 
+    @PreAuthorize("hasRole('admin')")
     @DeleteMapping("/{id}")
     @ApiResponse(responseCode = "204")
     public ResponseEntity<Void> deleteStatus(@PathVariable(name = "id") final Long id) {

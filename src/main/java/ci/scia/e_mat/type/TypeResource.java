@@ -21,6 +21,7 @@ import org.springframework.web.bind.annotation.RestController;
 
 @RestController
 @RequestMapping(value = "/api/types", produces = MediaType.APPLICATION_JSON_VALUE)
+
 public class TypeResource {
 
     private final TypeService typeService;
@@ -29,16 +30,19 @@ public class TypeResource {
         this.typeService = typeService;
     }
 
+    @PreAuthorize("hasRole('admin') or hasRole('exploitant') or hasRole('directeur')")
     @GetMapping
     public ResponseEntity<List<TypeDTO>> getAllTypes() {
         return ResponseEntity.ok(typeService.findAll());
     }
 
+    @PreAuthorize("hasRole('admin') or hasRole('exploitant') or hasRole('directeur')")
     @GetMapping("/{id}")
     public ResponseEntity<TypeDTO> getType(@PathVariable(name = "id") final Long id) {
         return ResponseEntity.ok(typeService.get(id));
     }
 
+    @PreAuthorize("hasRole('admin')")
     @PostMapping
     @ApiResponse(responseCode = "201")
     public ResponseEntity<Long> createType(@RequestBody @Valid final TypeDTO typeDTO) {
@@ -46,6 +50,7 @@ public class TypeResource {
         return new ResponseEntity<>(createdId, HttpStatus.CREATED);
     }
 
+    @PreAuthorize("hasRole('admin')")
     @PutMapping("/{id}")
     public ResponseEntity<Long> updateType(@PathVariable(name = "id") final Long id,
             @RequestBody @Valid final TypeDTO typeDTO) {
@@ -53,6 +58,7 @@ public class TypeResource {
         return ResponseEntity.ok(id);
     }
 
+    @PreAuthorize("hasRole('admin')")
     @DeleteMapping("/{id}")
     @ApiResponse(responseCode = "204")
     public ResponseEntity<Void> deleteType(@PathVariable(name = "id") final Long id) {

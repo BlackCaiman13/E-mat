@@ -8,6 +8,7 @@ import lombok.Setter;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -28,16 +29,19 @@ public class MaterielResource {
         this.materielService = materielService;
     }
 
+    @PreAuthorize("hasRole('admin') or hasRole('exploitant')")
     @GetMapping
     public ResponseEntity<List<MaterielDTO>> getAllMateriels() {
         return ResponseEntity.ok(materielService.findAll());
     }
 
+    @PreAuthorize("hasRole('admin') or hasRole('exploitant')")
     @GetMapping("/{id}")
     public ResponseEntity<MaterielDTO> getMateriel(@PathVariable(name = "id") final Long id) {
         return ResponseEntity.ok(materielService.get(id));
     }
 
+    @PreAuthorize("hasRole('admin') or hasRole('exploitant')")
     @PostMapping
     @ApiResponse(responseCode = "201")
     public ResponseEntity<Long> createMateriel(@RequestBody @Valid final MaterielDTO materielDTO) {
@@ -45,6 +49,7 @@ public class MaterielResource {
         return new ResponseEntity<>(createdId, HttpStatus.CREATED);
     }
 
+    @PreAuthorize("hasRole('admin') or hasRole('exploitant')")
     @PutMapping("/{id}")
     public ResponseEntity<Long> updateMateriel(@PathVariable(name = "id") final Long id,
             @RequestBody @Valid final MaterielDTO materielDTO) {
@@ -52,6 +57,7 @@ public class MaterielResource {
         return ResponseEntity.ok(id);
     }
 
+    @PreAuthorize("hasRole('admin') or hasRole('exploitant')")
     @DeleteMapping("/{id}")
     @ApiResponse(responseCode = "204")
     public ResponseEntity<Void> deleteMateriel(@PathVariable(name = "id") final Long id) {
@@ -59,6 +65,7 @@ public class MaterielResource {
         return ResponseEntity.noContent().build();
     }
 
+    @PreAuthorize("hasRole('admin') or hasRole('exploitant')")
     @PutMapping("/{id}/attribuer")
     public ResponseEntity<Void> attribuerMateriel(
             @PathVariable(name = "id") final Long id,
@@ -67,12 +74,14 @@ public class MaterielResource {
         return ResponseEntity.ok().build();
     }
 
+    @PreAuthorize("hasRole('admin') or hasRole('exploitant')")
     @PutMapping("/{id}/revoquer")
     public ResponseEntity<Void> revoquerAttribution(@PathVariable(name = "id") final Long id) {
         materielService.revoquerAttribution(id);
         return ResponseEntity.ok().build();
     }
 
+    @PreAuthorize("hasRole('admin') or hasRole('exploitant')")
     @PutMapping("/{id}/changer-etat")
     public ResponseEntity<Void> changerEtat(
             @PathVariable(name = "id") final Long id,

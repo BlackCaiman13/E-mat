@@ -8,6 +8,7 @@ import java.util.List;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -28,16 +29,19 @@ public class FournisseurResource {
         this.fournisseurService = fournisseurService;
     }
 
+    @PreAuthorize("hasRole('admin') or hasRole('directeur') or hasRole('exploitant')")
     @GetMapping
     public ResponseEntity<List<FournisseurDTO>> getAllFournisseurs() {
         return ResponseEntity.ok(fournisseurService.findAll());
     }
 
+    @PreAuthorize("hasRole('admin') or hasRole('directeur') or hasRole('exploitant')")
     @GetMapping("/{id}")
     public ResponseEntity<FournisseurDTO> getFournisseur(@PathVariable(name = "id") final Long id) {
         return ResponseEntity.ok(fournisseurService.get(id));
     }
 
+    @PreAuthorize("hasRole('admin') or hasRole('directeur')")
     @PostMapping
     @ApiResponse(responseCode = "201")
     public ResponseEntity<Long> createFournisseur(
@@ -46,6 +50,7 @@ public class FournisseurResource {
         return new ResponseEntity<>(createdId, HttpStatus.CREATED);
     }
 
+    @PreAuthorize("hasRole('admin') or hasRole('directeur')")
     @PutMapping("/{id}")
     public ResponseEntity<Long> updateFournisseur(@PathVariable(name = "id") final Long id,
             @RequestBody @Valid final FournisseurDTO fournisseurDTO) {
@@ -53,6 +58,7 @@ public class FournisseurResource {
         return ResponseEntity.ok(id);
     }
 
+    @PreAuthorize("hasRole('admin') or hasRole('directeur')")
     @DeleteMapping("/{id}")
     @ApiResponse(responseCode = "204")
     public ResponseEntity<Void> deleteFournisseur(@PathVariable(name = "id") final Long id) {
